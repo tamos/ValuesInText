@@ -7,15 +7,12 @@ output: html_document
 
 
 ```{r}
-getwd() 
-setwd("DOC_2/Bremen/BIGSS")
+setwd("/Users/ty/Documents/BIGSSS")
+require("quanteda")
 
+load("Data/Corp_HouseOfCommons.RData")
 
-load("Corp_HouseOfCommons.RData")
-head(bt.corpus, 100)
-newdata <- bt.corpus[299490:299800,]
-
-speech.corpus <- corpus(newdata$text)
+speech.corpus <- corpus(hoc.corpus$text)
 
 speech.corpus.dfm <- dfm(speech.corpus, stem=T, remove_numbers = TRUE, remove_punct = TRUE, remove_symbols = TRUE,  remove = stopwords("en"))
 ```
@@ -34,24 +31,32 @@ mig_dict_full <- dictionary (list (toleran= c("*toleran*"), abuse = c("abuse"), 
 
 
 ```{r}
-dict_dfm <- dfm_lookup(speech.corpus.dfm, dictionary = mig_dict_full)
+dict_dfm <- convert(dfm_lookup(speech.corpus.dfm, dictionary = mig_dict_full), to = "data.frame")
+#save(dict_dfm, file = "dict_dfm_df.RData") 
+rm(speech.corpus.dfm)
+rm(speech.corpus)
+trim_df = hoc.corpus[rowSums(dict_dfm[,-1]) > 0,] # take only those which sum to at least 1
+#save(trim_df, file = "trimmed_hoc_corpus.RData")
 
-dict_dfm
-tail(dict_dfm)
 ```
 
 
 ```{r}
-# mig_dict <- dictionary(list(terror = c("terrorismus", "zuwander*", 
-# "threat"), economy = c("arbeit*", "unternehm*")))                         
+# valuesdictionary.yaml is a file which contains value regex expressions
+values_dict = dictionary(file = "valuesdictionary.yaml", format = "YAML", sep = ",")
+trimmed_dfm = dfm(corpus(trim_df), stem=T, remove_numbers = TRUE, remove_punct = TRUE, remove_symbols = TRUE,  remove = stopwords("en"))
+values_results <- convert(dfm_lookup(trimmed_dfm, dictionary = values_dict), to = "data.frame")
+
+#values_results[rowSums(values_results[,-1]) > 0,]
+
 ```
 
 
 
 ```{r}
-extract <- which(dict_dfm$theta [,docsids]>1, arr.ind = T )
+#extract <- which(dict_dfm$theta [,docsids]>1, arr.ind = T )
 
-slice(dict_dfm, 1:6)
+#slice(dict_dfm, 1:6)
 
 
 ```
