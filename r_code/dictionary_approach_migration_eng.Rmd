@@ -4,21 +4,33 @@ author: "Sanja"
 date: "30 July 2018"
 output: html_document
 ---
-
-
 ```{r}
-setwd("/Users/ty/Documents/BIGSSS")
 require("quanteda")
+require("magrittr")
 
-load("Data/Corp_HouseOfCommons.RData")
+cast_to_corpus <- function(corp) {
+  # In: corp, a dataset with a 'text' attribute
+  # Out: a corpus object
+  return (corpus(corp$text))
+}
 
-speech.corpus <- corpus(hoc.corpus$text)
+cast_to_dfm <- function (corp, stops) {
+  # In: corp: a corpus object
+  #     stops: any additional stop words to include
+  # Out: a dfm object
+  
+  return (dfm(corp, stem=T, remove_numbers = TRUE, remove_punct = TRUE, remove_symbols = TRUE,  remove = stops))
+}
 
-speech.corpus.dfm <- dfm(speech.corpus, stem=T, remove_numbers = TRUE, remove_punct = TRUE, remove_symbols = TRUE,  remove = stopwords("en"))
+dictionary_lookup_to_df <- function (corpus_dfm, dict) {
+  return(convert(dfm_lookup(corpus_dfm, dictionary = dict), to = "data.frame"))
+}
+
+add_sum_column <- function(result_df){
+  result_df$value_sum = rowSums(result_df[,-1])
+  return(result_df)
+}
 ```
-
-
-
 
 ```{r}
 # dictionary
@@ -29,35 +41,65 @@ mig_dict_full <- dictionary (list (toleran= c("*toleran*"), abuse = c("abuse"), 
 
 
 
-
 ```{r}
-dict_dfm <- convert(dfm_lookup(speech.corpus.dfm, dictionary = mig_dict_full), to = "data.frame")
-#save(dict_dfm, file = "dict_dfm_df.RData") 
-rm(speech.corpus.dfm)
-rm(speech.corpus)
+
+# "Dictionary approach"
+load("Corp_HouseOfCommons.RData")
+
+dict_dfm <- hoc.corpus %>% cast_to_corpus() %>% cast_to_dfm(stops = stopwords("en"))  %>% dictionary_lookup_to_df(dict = mig_dict_full) 
+ 
 trim_df = hoc.corpus[rowSums(dict_dfm[,-1]) > 0,] # take only those which sum to at least 1
-#save(trim_df, file = "trimmed_hoc_corpus.RData")
 
-```
+# at this point we have a reduced form of the hoc.corpus for which only records with migration related words are included
 
+# Now we move on to extracting the value-laden words and counting them up
 
-```{r}
-# valuesdictionary.yaml is a file which contains value regex expressions
+# valuesdictionary.txt is a file which contains value regex expressions
 values_dict = dictionary(file = "Values_LIWC_Jul_31.txt", format = "LIWC", sep = ",")
-trimmed_dfm = dfm(corpus(trim_df), stem=T, remove_numbers = TRUE, remove_punct = TRUE, remove_symbols = TRUE,  remove = stopwords("en"))
-values_results <- convert(dfm_lookup(trimmed_dfm, dictionary = values_dict), to = "data.frame")
-values_results$value_sum = rowSums(values_results[,-1])
+
+# take our reduced matrix and run the same pipeline as above, but with values
+# in the dictionary
+values_results <- trim_df %>% cast_to_corpus() %>% cast_to_dfm(stops = stopwords("en"))  %>% dictionary_lookup_to_df(dict = values_dict) %>% add_sum_column()
+
+# bind the original, trimmed dataframe, and the value results
 values_joined = cbind(values_results, trim_df)
-save(values_joined, file = "joined_value_counts.RData")
+
+# save it all to a csv
 write.csv(values_joined, file = "joined_value_counts.csv")
+
+
 ```
 
 
 
 ```{r}
-#extract <- which(dict_dfm$theta [,docsids]>1, arr.ind = T )
 
-#slice(dict_dfm, 1:6)
+rm(values_results)
+rm(values_joined)
+rm(dict_dfm)
+rm(trim_df)
+# "Topic Model Approach"
 
+hoc.corpus = read.csv("hoc_subset_corpus_2005-2015.csv", stringsAsFactors = FALSE)
 
+# at this point we have a reduced form of the hoc.corpus for which only records with migration related words are included, from a topic model
+
+# Now we move on to extracting the value-laden words and counting them up
+
+# valuesdictionary.txt is a file which contains value regex expressions
+values_dict = dictionary(file = "Values_LIWC_Jul_31.txt", format = "LIWC", sep = ",")
+
+# take our reduced matrix and run the same pipeline as above, but with values
+# in the dictionary
+values_results <- hoc.corpus %>% cast_to_corpus() %>% cast_to_dfm(stops = stopwords("en"))  %>% dictionary_lookup_to_df(dict = values_dict) %>% add_sum_column()
+
+# bind the original, trimmed dataframe, and the value results
+values_joined = cbind(values_results, hoc.corpus)
+
+# save it all to a csv
+write.csv(values_joined, file = "joined_value_counts_from_topic_model.csv")
+rm(hoc.corpus)
+rm(values_joined)
+rm(values_results)
 ```
+
