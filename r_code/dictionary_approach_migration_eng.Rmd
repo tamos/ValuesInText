@@ -36,12 +36,18 @@ dict_dfm <- convert(dfm_lookup(speech.corpus.dfm, dictionary = mig_dict_full), t
 save(dict_dfm, file = "dict_dfm_df.RData") 
 trim_df = hoc.corpus[rowSums(dict_dfm[,-1]) > 0,] # take only those which sum to at least 1
 
+save(trim_df, file = "trimmed_hoc_corpus.RData")
+
 ```
 
 
 ```{r}
-# mig_dict <- dictionary(list(terror = c("terrorismus", "zuwander*", 
-# "threat"), economy = c("arbeit*", "unternehm*")))                         
+values_dict = dictionary(file = "r_code/valuesdictionary.yaml", format = "YAML", sep = ",")
+
+values_results <- convert(dfm_lookup(corpus(trim_df), dictionary = values_dict), to = "data.frame")
+
+#values_results[rowSums(values_results[,-1]) > 0,]
+
 ```
 
 
