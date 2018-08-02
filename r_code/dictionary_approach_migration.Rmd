@@ -11,47 +11,15 @@ getwd()
 setwd("DOC_2/Bremen/BIGSS")
 
 
-load("Corp_HouseOfCommons.RData")
-head(bt.corpus, 100)
-newdata <- bt.corpus[299490:299800,]
+mig_dict <- dictionary(list(terror = c("terrorismus", "zuwander*", "threat"), economy = c("arbeit*", "unternehm*")))                          
 
-speech.corpus <- corpus(newdata$text)
+dict_dfm <- dfm(speech.corpus.dfm, dictionary = mig_dict)
+dict_dfm                    
 
-speech.corpus.dfm <- dfm(speech.corpus, stem=T, remove_numbers = TRUE, remove_punct = TRUE, remove_symbols = TRUE,  remove = stopwords("en"))
+
+ead.delim("migration_dict_Ruedin.txt")
+
+
+dict_dtm <- dfm_lookup(dtm, dictionary, nomatch = "_unmatched")
 ```
 
-
-
-
-```{r}
-# dictionary
-
-mig_dict_full <- dictionary (list (toleran= c("*toleran*"), abuse = c("abuse"), assimil =	c("assimil*"), asylum =	c(	"asylum*"	), avalanche =	c("avalanche"), border	=	c("border"), burqa=	c("burqa"), christian=	c("christian"), citizen=	c("citizen*"), cultur =	c("cultur*"), custom	=	c("custom*"), deport	=	c("deport*"), discriminat=	c("discriminat*"), diversity =	c("diversity"), ethnic	=	c("ethnic*"), extremis	=	c("extremis*"), flood =	c(	"flood"	), foreign=	c("foreign*"),fraud	=	c("fraud"	)	, halal	=	c("halal"	), hallal	=	c("hallal"), headscarf=	c("headscarf"), human=	c	(	"human*"), identitiy= c("identitiy"), illegal=	c("illegal*"), immigr	=	c	("immigr*"), indigenous=	c	("indigenous"),	integrat=	c("integrat*"	), invasion=		c("invasion"	),	irregular=	c(	"irregular"),	islam	=	c("islam*"),	jihad	=	c("jihad*"), migrant=	c("migrant*"),	minaret	=	c	(	"minaret"	), minorit=		c("minorit*"),	mosque	=	c ("mosque"), multicultur =	c("multicultur*"), muslim	= c("muslim"), nation		= c("nation*"),	native	= c("native"), naturalis=	c("naturalis*"), naturaliz=	c("naturaliz*"), permit	= c("permit"),	raci =	c("raci*"),	radical	=	c("radical"),	refug	=	c("refug*"),	refuge	=	c(	"refuge"),	religious =	c("religious"),	reunion	=	c	("reunion"), sharia	=	c ("sharia"	), shari	=	c("shari'a"),	shariah	=	c("shariah"), shelter	=	c("shelter"), temple	=	c(	"temple")	,	terroris =	c("terroris*"), tradition = c("tradition*"), traumatis =	c("traumatis"),	traumatiz =	c("traumatiz*"), unauthorised = c("unauthorised"), unauthorized =	c("unauthorized"), unity	= c("unity"),	veil = c("veil"), xenophob =	c("xenophob*")))
-
-```
-
-
-
-
-```{r}
-dict_dfm <- dfm_lookup(speech.corpus.dfm, dictionary = mig_dict_full)
-
-dict_dfm
-tail(dict_dfm)
-```
-
-
-```{r}
-# mig_dict <- dictionary(list(terror = c("terrorismus", "zuwander*", 
-# "threat"), economy = c("arbeit*", "unternehm*")))                         
-```
-
-
-
-```{r}
-extract <- which(dict_dfm$theta [,docsids]>1, arr.ind = T )
-
-slice(dict_dfm, 1:6)
-
-
-```
