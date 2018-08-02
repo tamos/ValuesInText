@@ -43,12 +43,13 @@ trim_df = hoc.corpus[rowSums(dict_dfm[,-1]) > 0,] # take only those which sum to
 
 ```{r}
 # valuesdictionary.yaml is a file which contains value regex expressions
-values_dict = dictionary(file = "valuesdictionary.yaml", format = "YAML", sep = ",")
+values_dict = dictionary(file = "Values_LIWC_Jul_31.txt", format = "LIWC", sep = ",")
 trimmed_dfm = dfm(corpus(trim_df), stem=T, remove_numbers = TRUE, remove_punct = TRUE, remove_symbols = TRUE,  remove = stopwords("en"))
 values_results <- convert(dfm_lookup(trimmed_dfm, dictionary = values_dict), to = "data.frame")
-
-#values_results[rowSums(values_results[,-1]) > 0,]
-
+values_results$value_sum = rowSums(values_results[,-1])
+values_joined = cbind(values_results, trim_df)
+save(values_joined, file = "joined_value_counts.RData")
+write.csv(values_joined, file = "joined_value_counts.csv")
 ```
 
 
