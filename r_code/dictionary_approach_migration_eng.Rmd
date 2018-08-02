@@ -11,7 +11,6 @@ setwd("/Users/ty/Documents/BIGSSS")
 require("quanteda")
 
 load("Data/Corp_HouseOfCommons.RData")
-#newdata <- bt.corpus[299490:299800,]
 
 speech.corpus <- corpus(hoc.corpus$text)
 
@@ -33,18 +32,20 @@ mig_dict_full <- dictionary (list (toleran= c("*toleran*"), abuse = c("abuse"), 
 
 ```{r}
 dict_dfm <- convert(dfm_lookup(speech.corpus.dfm, dictionary = mig_dict_full), to = "data.frame")
-save(dict_dfm, file = "dict_dfm_df.RData") 
+#save(dict_dfm, file = "dict_dfm_df.RData") 
+rm(speech.corpus.dfm)
+rm(speech.corpus)
 trim_df = hoc.corpus[rowSums(dict_dfm[,-1]) > 0,] # take only those which sum to at least 1
-
-save(trim_df, file = "trimmed_hoc_corpus.RData")
+#save(trim_df, file = "trimmed_hoc_corpus.RData")
 
 ```
 
 
 ```{r}
-values_dict = dictionary(file = "r_code/valuesdictionary.yaml", format = "YAML", sep = ",")
-
-values_results <- convert(dfm_lookup(corpus(trim_df), dictionary = values_dict), to = "data.frame")
+# valuesdictionary.yaml is a file which contains value regex expressions
+values_dict = dictionary(file = "valuesdictionary.yaml", format = "YAML", sep = ",")
+trimmed_dfm = dfm(corpus(trim_df), stem=T, remove_numbers = TRUE, remove_punct = TRUE, remove_symbols = TRUE,  remove = stopwords("en"))
+values_results <- convert(dfm_lookup(trimmed_dfm, dictionary = values_dict), to = "data.frame")
 
 #values_results[rowSums(values_results[,-1]) > 0,]
 
