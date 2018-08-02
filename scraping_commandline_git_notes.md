@@ -47,6 +47,7 @@ Tutorials:
 
 Key Concepts:
 	- html is a tree (https://en.wikipedia.org/wiki/Tree_(data_structure))
+	
 	< html > 
 			< p >
 				This is a paragraph.
