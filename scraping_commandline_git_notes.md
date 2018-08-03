@@ -56,9 +56,18 @@ Key Concepts:
 
 	A tag (node) of the tree starts with its name (<name>) and ends with (</name>). 
 
-	- You can traverse the tree by starting at the root, <html>, and then moving through the nodes. 
+	- You can traverse the tree by starting at the root, <html>, and then moving through the nodes. Web scraping involves loading the content of a link (html), and then extracting content by id, CSS tag, name, text, or other feature. This process is almost always challenging (read: very frustrating), but if you can make it work it is much preferable to manually collecting data from web pages. 
 
-	-  Headless browsers let you run a browser without actually opening the visual interface
+	-  Headless browsers let you run a browser without actually opening the visual interface, many web scraping scripts use these to navigate pages. 
+
+
+Some general tips:
+
+	- Don't forget to let your script pause between actions. In python this is the time.sleep function, in R  Sys.sleep. This gives enough time to load features from the page. 
+
+	- Make use of your browser's "view source" option when coding. This lets you more easily navigate a page and saves lots of time when you're searching for elements in a page.  
+
+	- If you can, try to code a simple webpage from scratch yourself. This helps better understand how html, CSS and Javascript work. 
 
 
 ## Python
