@@ -1,0 +1,31 @@
+---
+title: "mystopwords_code"
+author: "Sanja"
+date: "13 August 2018"
+output: html_document
+---
+
+
+
+
+```{r}
+getwd() 
+setwd("C:/Users/Sovica/Documents/DOC_2/Bremen/BIGSS")
+```
+
+Create a list of stopwords in excel or notebook and save it in .csv format.
+The list I created is called mystopwords.csv.
+The add the 
+
+```{r}
+#create new stopwords list
+
+stopw <- read.csv("mystopwords.csv", header = FALSE)
+stopw <- as.character(stopw$V1)
+```
+
+As previously, get a dfm matrix based on the corpus on which we removed stepwords, now adding also our additional stopwords - stopw
+
+```{r}
+speech.corpus.dfm <- dfm(speech.corpus, stem=T, remove_numbers = TRUE, remove_punct = TRUE, remove_symbols = TRUE,  remove = c(stopwords("en"), stopw))
+```
