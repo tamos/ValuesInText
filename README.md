@@ -4,11 +4,13 @@
 
 ## Data Sources
 
-** Canadian Parliament **
+
+__Canadian Parliament__
 
 https://www.lipad.ca
 
 
-** US Congress **
+__US Congress__
+
 
 https://data.stanford.edu/congress_text
