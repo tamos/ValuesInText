@@ -14,3 +14,9 @@ __US Congress__
 
 
 https://data.stanford.edu/congress_text
+
+
+__Personal blogs__
+
+
+https://www.kaggle.com/rtatman/blog-authorship-corpus
