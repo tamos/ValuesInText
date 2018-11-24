@@ -1,0 +1,150 @@
+---
+title: "Naive Bayes Classifier"
+author: "Sanja"
+date: "26 August 2018"
+output: html_document
+---
+```{r}
+library(readtext)
+library(quanteda)
+library("stm")
+require(caTools)
+require(dplyr)
+library(topicmodels)
+library(MASS)
+#set working directory
+getwd() 
+setwd("C:/Users/Sovica/Documents/DOC_2/Bremen/BIGSS")
+
+getwd()
+setwd("C:/Users/Sovica/Documents/DOC_2/Bremen/BIGSS/migration values")
+
+#read csv as text using readtext package
+
+corp <- readtext("C:/Users/Sovica/Documents/DOC_2/Bremen/BIGSS/migration values/HoC-CAN_sample.csv", header = TRUE, text_field = "speechtext")
+
+stopw <- read.csv("C:/Users/Sovica/Documents/DOC_2/Bremen/BIGSS/mystopwords.csv", header = FALSE)
+stopw <- as.character(stopw$V1)
+
+```
+
+```{r}
+require("quanteda")
+require("magrittr")
+
+# I think the issue was in this part of the code 
+
+#cast_to_corpus <- function(corp) {
+  # In: corp, a dataset with a 'text' attribute
+  # Out: a corpus object
+  #return (corpus(corp$speechtext))
+#}
+
+# This version of code creates a corpus from a data frame object
+# from https://docs.quanteda.io/reference/corpus.html
+
+cast_to_corpus <- function(corp) {
+  # In: corp, a dataset with a 'text' attribute
+  # Out: a corpus object
+  return (corpus(corp,docid_field = "basepk", text_field = "text"))
+}
+
+
+cast_to_dfm <- function (corp, stops) {
+  # In: corp: a corpus object
+  #     stops: any additional stop words to include
+  # Out: a dfm object
+  return (dfm(corp, stem=T, remove_numbers = TRUE, remove_punct = TRUE, remove_symbols = TRUE,  remove = stops))
+}
+
+dictionary_lookup_to_df <- function (corpus_dfm, dict) {
+  return(convert(dfm_lookup(corpus_dfm, dictionary = dict), to = "data.frame"))
+}
+
+add_sum_column <- function(result_df){
+  result_df$value_sum = rowSums(result_df[,-1])
+  return(result_df)
+}
+```
+
+```{r}
+# dictionary
+
+mig_dict_full <- dictionary (list (toleran= c("*toleran*"), abuse = c("abuse"), assimil =	c("assimil*"), asylum =	c(	"asylum*"	), avalanche =	c("avalanche"), border	=	c("border"), burqa=	c("burqa"), christian=	c("christian"), citizen=	c("citizen*"), cultur =	c("cultur*"), custom	=	c("custom*"), deport	=	c("deport*"), discriminat=	c("discriminat*"), diversity =	c("diversity"), ethnic	=	c("ethnic*"), extremis	=	c("extremis*"), flood =	c(	"flood"	), foreign=	c("foreign*"),fraud	=	c("fraud"	)	, halal	=	c("halal"	), hallal	=	c("hallal"), headscarf=	c("headscarf"), human=	c	(	"human*"), identitiy= c("identitiy"), illegal=	c("illegal*"), immigr	=	c	("immigr*"), indigenous=	c	("indigenous"),	integrat=	c("integrat*"	), invasion=		c("invasion"	),	irregular=	c(	"irregular"),	islam	=	c("islam*"),	jihad	=	c("jihad*"), migrant=	c("migrant*"),	minaret	=	c	(	"minaret"	), minorit=		c("minorit*"),	mosque	=	c ("mosque"), multicultur =	c("multicultur*"), muslim	= c("muslim"), nation		= c("nation*"),	native	= c("native"), naturalis=	c("naturalis*"), naturaliz=	c("naturaliz*"), permit	= c("permit"),	raci =	c("raci*"),	radical	=	c("radical"),	refug	=	c("refug*"),	refuge	=	c(	"refuge"),	religious =	c("religious"),	reunion	=	c	("reunion"), sharia	=	c ("sharia"	), shari	=	c("shari'a"),	shariah	=	c("shariah"), shelter	=	c("shelter"), temple	=	c(	"temple")	,	terroris =	c("terroris*"), tradition = c("tradition*"), traumatis =	c("traumatis"),	traumatiz =	c("traumatiz*"), unauthorised = c("unauthorised"), unauthorized =	c("unauthorized"), unity	= c("unity"),	veil = c("veil"), xenophob =	c("xenophob*")))
+
+```
+
+
+
+
+```{r}
+
+# I added here stopw list - so that we can add the extended list of stopwords here as well
+
+dict_dfm <- corp %>% cast_to_corpus() %>% cast_to_dfm(stops = c(stopwords("en"), stopw))  %>% dictionary_lookup_to_df(dict = mig_dict_full) 
+ 
+trim_df = corp[rowSums(dict_dfm[,-1]) > 0,] # take only those which sum to at least 1
+
+# at this point we have a reduced form of the x.corpus for which only records with migration related words are included
+```
+
+Here I tried with naive Bayes classifier, which is also where Arnim's code comes from:
+Adapted from: https://tutorials.quanteda.io/machine-learning/nb/
+Arnim's code: https://github.com/arnim/stmdemo
+
+```{r}
+require(caret)
+
+#convert trimmed dataset into corpus
+trim_df1 <- corpus(trim_df, docid_field = "doc_id", text_field = "text")
+
+
+# generate 150 numbers without replacement, 223 as this is the n. of speeches where # migration dictionary hit bingo, change if this number changes
+
+set.seed(300)
+id_train <- sample(223, 150, replace = FALSE)
+head(id_train, 10)
+
+
+# create docvar with ID
+docvars(trim_df1, "id_numeric") <- 1:ndoc(trim_df1)
+
+# get training set - those speaches that correspond to randomly selected numbers in from the step above
+training_dfm <- corpus_subset(trim_df1, id_numeric %in% id_train) %>% dfm(stem = TRUE)
+
+# get test set (documents not in id_train)
+test_dfm <- corpus_subset(trim_df1, !id_numeric %in% id_train) %>% dfm(stem = TRUE)
+
+# distribution of texts by parties in training part of the data
+table(docvars(training_dfm, "speakerparty"))
+
+```
+
+Next we train the naive Bayes classifier using textmodel_nb().
+
+```{r}
+# this does not appear to be working well - maybe cause not all texts have party # allocated to it
+
+nb <- textmodel_nb(training_dfm, docvars(training_dfm, "speakerparty"))
+summary(nb)
+
+
+```
+
+
+```{r}
+test_dfm <- dfm_select(test_dfm, training_dfm)
+
+table(docvars(test_dfm, "speakerparty"))
+
+```
+
+
+In the next step, we check how well the classification worked by taking a look into a confusion matrix.
+
+```{r}
+actual_class <- docvars(test_dfm, "speakerparty")
+predicted_class <- predict(nb, test_dfm)
+class_table <- table(actual_class, predicted_class)
+class_table
+```

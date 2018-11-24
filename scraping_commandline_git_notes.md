@@ -37,6 +37,8 @@ git checkout another_branch_name
 When you are moving between branches (this is the best part of git), the files you make/modify will only be available on that branch. So if you break something or delete something on one branch, you can just switch back to the master, create a new branch, and your files will be available as a copy of the master. 
 
 
+Finally, when you want to update what you have locally with what is on the server (i.e., integrate other people's changes), you (i) make sure you have committed any changes you want to make on your current branch; (ii) switch back to the master (git checkout master); (iii) git pull
+
 Tutorials:
 	- https://git-scm.com/book/en/v1/Getting-Started
 	- https://www.tutorialspoint.com/git/index.htm
