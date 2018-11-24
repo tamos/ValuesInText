@@ -43,7 +43,6 @@ stopw <- as.character(c("honourable", "Speaker"))
 
 #load("Corp_HouseOfCommons.Rdata")
 
-speech_corpus <- sample_n(hoc.corpus, 750000)
 speech_corpus = hoc.corpus
 rm(hoc.corpus)
 
@@ -87,8 +86,8 @@ for (i in 1:length(unique(class_table$actual_class))) {
   
   current_label = parties[i]
   
-  current_list = vector(mode = "list", length = 4)
-  names(current_list) = c("Precision", "Recall", "F1", "Accuracy")
+  current_list = vector(mode = "list", length = 3)
+  names(current_list) = c("Precision", "Recall", "F1")
   
   true_pos = class_table[class_table$actual_class == current_label &    class_table$predicted_class == current_label,'Freq']
   
@@ -100,8 +99,6 @@ for (i in 1:length(unique(class_table$actual_class))) {
   
   precision = true_pos/(true_pos + false_pos)
   recall = true_pos/(true_pos + false_neg)
-  
-  current_list$Accuracy = true_pos/(true_neg + false_neg + false_pos + true_pos)
   
   current_list$Precision = precision
   current_list$Recall = recall
@@ -145,7 +142,7 @@ for (i in 1:length(unique(class_table$actual_class))) {
   current_label = parties[i]
   
   current_list = vector(mode = "list", length = 4)
-  names(current_list) = c("Precision", "Recall", "F1", "Accuracy")
+  names(current_list) = c("Precision", "Recall", "F1")
   
   true_pos = class_table[class_table$actual_class == current_label &    class_table$predicted_class == current_label,'Freq']
   
@@ -157,8 +154,6 @@ for (i in 1:length(unique(class_table$actual_class))) {
   
   precision = true_pos/(true_pos + false_pos)
   recall = true_pos/(true_pos + false_neg)
-  
-  current_list$Accuracy = true_pos/(true_neg + false_neg + false_pos + true_pos)
   
   current_list$Precision = precision
   current_list$Recall = recall
