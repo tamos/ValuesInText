@@ -21,6 +21,26 @@ Set up the working directory
 We load the data.
 Upload the stopwords
 
+references
+
+https://cran.r-project.org/web/packages/tidytext/vignettes/tidying_casting.html
+
+https://www.r-bloggers.com/understanding-naive-bayes-classifier-using-r/
+
+https://www.statmethods.net/management/subset.html
+
+https://stackoverflow.com/questions/6619853/r-how-to-make-a-confusion-matrix-for-a-predictive-model
+
+https://stackoverflow.com/questions/26247429/data-manipulation-in-r-x-must-be-atomic
+
+https://www.rdocumentation.org/packages/caret/versions/6.0-80/topics/confusionMatrix
+
+https://scikit-learn.org/stable/auto_examples/model_selection/plot_precision_recall.html
+
+https://machinelearningmastery.com/classification-accuracy-is-not-enough-more-performance-measures-you-can-use/
+
+https://www.r-bloggers.com/accuracy-versus-f-score-machine-learning-for-the-rna-polymerases/
+
 
 ```{r}
 # dictionary
