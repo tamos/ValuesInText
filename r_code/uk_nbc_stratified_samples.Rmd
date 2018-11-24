@@ -1,0 +1,177 @@
+---
+title: "UK Toy data - Naive Bayes Classifier"
+author: "Sanja"
+date: "21 Nov 2018"
+output: html_document
+---
+```{r}
+set.seed(300)
+library(readtext)
+library(quanteda)
+library(stm)
+require(caTools)
+require(dplyr)
+library(topicmodels)
+library(MASS)
+library(splitstackshape)
+library(tidytext)
+```
+
+Set up the working directory
+We load the data.
+Upload the stopwords
+
+
+```{r}
+# dictionary
+
+mig_dict_full <- dictionary (list (toleran= c("*toleran*"), abuse = c("abuse"), assimil =	c("assimil*"), asylum =	c(	"asylum*"	), avalanche =	c("avalanche"), border	=	c("border"), burqa=	c("burqa"), christian=	c("christian"), citizen=	c("citizen*"), cultur =	c("cultur*"), custom	=	c("custom*"), deport	=	c("deport*"), discriminat=	c("discriminat*"), diversity =	c("diversity"), ethnic	=	c("ethnic*"), extremis	=	c("extremis*"), flood =	c(	"flood"	), foreign=	c("foreign*"),fraud	=	c("fraud"	)	, halal	=	c("halal"	), hallal	=	c("hallal"), headscarf=	c("headscarf"), human=	c	(	"human*"), identitiy= c("identitiy"), illegal=	c("illegal*"), immigr	=	c	("immigr*"), indigenous=	c	("indigenous"),	integrat=	c("integrat*"	), invasion=		c("invasion"	),	irregular=	c(	"irregular"),	islam	=	c("islam*"),	jihad	=	c("jihad*"), migrant=	c("migrant*"),	minaret	=	c	(	"minaret"	), minorit=		c("minorit*"),	mosque	=	c ("mosque"), multicultur =	c("multicultur*"), muslim	= c("muslim"), nation		= c("nation*"),	native	= c("native"), naturalis=	c("naturalis*"), naturaliz=	c("naturaliz*"), permit	= c("permit"),	raci =	c("raci*"),	radical	=	c("radical"),	refug	=	c("refug*"),	refuge	=	c(	"refuge"),	religious =	c("religious"),	reunion	=	c	("reunion"), sharia	=	c ("sharia"	), shari	=	c("shari'a"),	shariah	=	c("shariah"), shelter	=	c("shelter"), temple	=	c(	"temple")	,	terroris =	c("terroris*"), tradition = c("tradition*"), traumatis =	c("traumatis"),	traumatiz =	c("traumatiz*"), unauthorised = c("unauthorised"), unauthorized =	c("unauthorized"), unity	= c("unity"),	veil = c("veil"), xenophob =	c("xenophob*")))
+
+#upload stop words
+#stopw <- read.csv("C:/Users/Sovica/Documents/DOC_2/Bremen/BIGSS/mystopwords.csv", header = FALSE)
+#stopw <- as.character(stopw$V1)
+stopw <- as.character(c("honourable", "Speaker"))
+
+
+```
+
+
+
+```{r}
+
+
+
+#load("Corp_HouseOfCommons.Rdata")
+
+speech_corpus <- sample_n(hoc.corpus, 750000)
+speech_corpus = hoc.corpus
+rm(hoc.corpus)
+
+parties = c('Lab', 'LibDem', 'Con', 'PlaidCymru', 'SNP')
+
+hoc.corpus.short.cut = subset(speech_corpus, 
+                        party %in% parties,
+                        select = colnames(speech_corpus))
+
+uk_samples = stratified(hoc.corpus.short.cut, "party",size = 0.7,
+                    select = NULL,replace = TRUE,
+                    bothSets = TRUE)
+
+rm(hoc.corpus.short.cut)
+rm(speech_corpus)
+```
+
+
+```{r}
+dfm_train <- dfm(corpus(uk_samples$SAMP1), dictionary = mig_dict_full, stem=T, remove_numbers = TRUE, remove_punct = TRUE, remove_symbols = TRUE,  remove = c(stopwords("en"), stopw)) %>% dfm_trim(min_termfreq = 10, min_docfreq = 2) %>% dfm_select( min_nchar = 4)
+
+
+dfm_test <- dfm(corpus(uk_samples$SAMP2), dictionary = mig_dict_full, stem=T, remove_numbers = TRUE, remove_punct = TRUE, remove_symbols = TRUE,  remove = c(stopwords("en"), stopw)) %>% dfm_trim(min_termfreq = 10, min_docfreq = 2) %>% dfm_select( min_nchar = 4)
+
+
+nb <- textmodel_nb(dfm_train,
+                  unlist(dfm_train@docvars$party))
+
+actual_class = unlist(dfm_test@docvars$party)
+predicted_class <- predict(nb, dfm_test, force = TRUE)
+
+
+class_table <- data.frame(table(actual_class, predicted_class))
+
+
+confusion_matrix = vector(mode="list", 
+                    length = length(unique(class_table$actual_class)))
+names(confusion_matrix) <- parties
+
+for (i in 1:length(unique(class_table$actual_class))) {
+  
+  current_label = parties[i]
+  
+  current_list = vector(mode = "list", length = 4)
+  names(current_list) = c("Precision", "Recall", "F1", "Accuracy")
+  
+  true_pos = class_table[class_table$actual_class == current_label &    class_table$predicted_class == current_label,'Freq']
+  
+  false_pos = sum(class_table[class_table$predicted_class == current_label &    class_table$actual_class != current_label, 'Freq'])
+  
+  false_neg = sum(class_table[class_table$predicted_class != current_label & class_table$actual_class == current_label, 'Freq'])
+  
+  true_neg = sum(class_table[class_table$predicted_class != current_label & class_table$actual_class != current_label, 'Freq'])
+  
+  precision = true_pos/(true_pos + false_pos)
+  recall = true_pos/(true_pos + false_neg)
+  
+  current_list$Accuracy = true_pos/(true_neg + false_neg + false_pos + true_pos)
+  
+  current_list$Precision = precision
+  current_list$Recall = recall
+  
+  current_list$F1 = 2 * ( (precision * recall)/(precision + recall) )
+  
+  confusion_matrix[[current_label]] = current_list
+  
+}
+
+do.call(rbind, confusion_matrix)
+
+
+
+```
+
+
+
+```{r}
+
+dfm_train_nodict <- dfm(corpus(uk_samples$SAMP1), stem=T, remove_numbers = TRUE, remove_punct = TRUE, remove_symbols = TRUE,  remove = c(stopwords("en"), stopw)) %>% dfm_trim(min_termfreq = 10, min_docfreq = 2) %>% dfm_select( min_nchar = 4)
+
+
+dfm_test_nodict <- dfm(corpus(uk_samples$SAMP2), stem=T, remove_numbers = TRUE, remove_punct = TRUE, remove_symbols = TRUE,  remove = c(stopwords("en"), stopw)) %>% dfm_trim(min_termfreq = 10, min_docfreq = 2) %>% dfm_select( min_nchar = 4)
+
+
+nb <- textmodel_nb(dfm_train_nodict,
+                  unlist(dfm_train_nodict@docvars$party))
+
+actual_class = unlist(dfm_test_nodict@docvars$party)
+predicted_class <- predict(nb, dfm_test_nodict, force = TRUE)
+class_table <- data.frame(table(actual_class, predicted_class))
+
+
+confusion_matrix = vector(mode="list", 
+                    length = length(unique(class_table$actual_class)))
+names(confusion_matrix) <- parties
+
+for (i in 1:length(unique(class_table$actual_class))) {
+  
+  current_label = parties[i]
+  
+  current_list = vector(mode = "list", length = 4)
+  names(current_list) = c("Precision", "Recall", "F1", "Accuracy")
+  
+  true_pos = class_table[class_table$actual_class == current_label &    class_table$predicted_class == current_label,'Freq']
+  
+  false_pos = sum(class_table[class_table$predicted_class == current_label &    class_table$actual_class != current_label, 'Freq'])
+  
+  false_neg = sum(class_table[class_table$predicted_class != current_label & class_table$actual_class == current_label, 'Freq'])
+  
+  true_neg = sum(class_table[class_table$predicted_class != current_label & class_table$actual_class != current_label, 'Freq'])
+  
+  precision = true_pos/(true_pos + false_pos)
+  recall = true_pos/(true_pos + false_neg)
+  
+  current_list$Accuracy = true_pos/(true_neg + false_neg + false_pos + true_pos)
+  
+  current_list$Precision = precision
+  current_list$Recall = recall
+  
+  current_list$F1 = 2 * ( (precision * recall)/(precision + recall) )
+  
+  confusion_matrix[[current_label]] = current_list
+  
+}
+
+do.call(rbind, confusion_matrix)
+
+
+
+
+```
