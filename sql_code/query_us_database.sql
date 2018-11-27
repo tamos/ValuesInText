@@ -5,4 +5,6 @@
 SELECT * FROM speeches, descriptions, speakers
 			WHERE speeches.speech_id=speakers.speech_id
 			AND speakers.speech_id=descriptions.speech_id 
-			AND descriptions.dateof > 19931231 ; 
+			AND descriptions.dateof > 19931231 
+			AND speakers.chamber = "H"
+			ORDER BY descriptions.dateof ; 
