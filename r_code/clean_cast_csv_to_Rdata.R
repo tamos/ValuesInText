@@ -15,3 +15,19 @@ setwd(paste(base_dir, "canada", sep = "/"))
 
 # save the file as rdata
 save(df, file = "hoc_can_clean.RData")
+
+rm(df)
+
+setwd(base_dir)
+
+# nothing below here is tested or complete
+
+# Read in us data produced by the sql query
+# this data is already filtered
+df = fread("us/congress_us_clean.csv.csv", sep = "|")
+
+# move into the us directory 
+setwd(paste(base_dir, "us", sep = "/"))
+
+# save the file as rdata
+save(df, file = "congress_us_clean.RData")
