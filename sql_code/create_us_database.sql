@@ -12,6 +12,9 @@ CREATE TABLE speeches(speech_id int, speech str);
 -- sed -ie 'y/\"/\ /' < speeches_097.txt
 -- this is why they are in the speeches_clean folder
 -- to do: identify lines which are being dropped and manually edit
+-- ref https://stackoverflow.com/questions/15212489/sqlite3-import-with-quotes
+-- ref https://stackoverflow.com/questions/16154007/replace-all-double-quotes-with-single-quotes
+-- ref https://stackoverflow.com/questions/2270558/sed-error-unterminated-substitute-pattern
 
 .import speeches_clean/speeches_097.txt speeches
 
@@ -50,6 +53,7 @@ CREATE TABLE speeches(speech_id int, speech str);
 .import speeches_clean/speeches_114.txt speeches
 
 -- remove the header rows 
+-- ref http://sqlite.1065341.n5.nabble.com/How-do-you-load-a-quot-csv-quot-and-skip-the-first-line-td63956.html
 
 DELETE FROM speeches WHERE speech_id = 'speech_id' ;
 
