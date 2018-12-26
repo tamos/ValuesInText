@@ -1,6 +1,11 @@
 
+-- this script creates a database of us speeches and places them into a sqlite3 database 
+-- run this script from the us data directory 
+
 -- usage: sqlite3 speeches.db < create_us_database.sql 
 
+-- make a table called speeches with two columns called speech_id (an integer)
+-- and speech (a string) 
 
 CREATE TABLE speeches(speech_id int, speech str);
 
@@ -9,12 +14,15 @@ CREATE TABLE speeches(speech_id int, speech str);
 .separator "|"
 
 -- these files need to have their quotation marks removed with this command
+-- for details on how to use sed:  https://www.gnu.org/software/sed/manual/sed.html
 -- sed -ie 'y/\"/\ /' < speeches_097.txt
 -- this is why they are in the speeches_clean folder
 -- to do: identify lines which are being dropped and manually edit
 -- ref https://stackoverflow.com/questions/15212489/sqlite3-import-with-quotes
 -- ref https://stackoverflow.com/questions/16154007/replace-all-double-quotes-with-single-quotes
 -- ref https://stackoverflow.com/questions/2270558/sed-error-unterminated-substitute-pattern
+
+-- import all the files 
 
 .import speeches_clean/speeches_097.txt speeches
 
@@ -57,6 +65,8 @@ CREATE TABLE speeches(speech_id int, speech str);
 
 DELETE FROM speeches WHERE speech_id = 'speech_id' ;
 
+
+-- create another table called speakers with 6 columns 
 
 CREATE TABLE speakers (speakerid int, 
 					speech_id int,lastname str,
@@ -110,21 +120,21 @@ CREATE TABLE speakers (speakerid int,
 
 DELETE FROM speakers WHERE speakerid = 'speakerid' ;
 
-
+--- create another table called descriptions
 CREATE TABLE descriptions (speech_id int, 
-							chamber str, 
-							dateof str, 
-							number_within_file str, 
-							speaker str, 
-							first_name str, 
-							last_name str, 
-							state str, 
-							gender str, 
-							line_start str, 
-							line_end str, 
-							file str, 
-							char_count str, 
-							word_count int); 
+			chamber str, 
+			dateof str, 
+			number_within_file str, 
+			speaker str, 
+			first_name str, 
+			last_name str, 
+			state str, 
+			gender str, 
+			line_start str, 
+			line_end str, 
+			file str, 
+			char_count str, 
+			word_count int); 
 
 .mode csv
 
