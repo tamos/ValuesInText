@@ -1,0 +1,63 @@
+---
+title: "Untitled"
+output: html_document
+---
+
+
+
+```{r}
+
+sageLabels(interaction_content_lda, n=20)
+```
+
+```{r}
+
+labelTopics(interaction_content_lda,  c(1:20))
+```
+
+```{r}
+#topic content - words used by parties within topics
+#def. vars. to take into account for content (R, D, I)
+#defines topic which you wanna plot with topics =
+#defines labels of the parties
+#main = title
+
+#coerces the speechdate into numeric
+out$meta$speechdate <- as.numeric(out$meta$speechdate)
+
+
+#opens a file in your WD
+png('content.png')
+Immigration <-  plot(interaction_content, type = "perspectives", covarlevels = c(1,2), topics = 28, plabels = c("Rep.", "Dem."), text.cex = 1, n= 12, main = "Immigration Core")
+dev.off()
+
+
+#runs estimate effect function
+#C(defines topic)
+#S() defines 
+prep1 <- estimateEffect(c(1) ~ speakerparty * s(speechdate), interaction_content_lda,
+metadata = out$meta, uncertainty = "None")
+
+
+#plots across time based on estimate effect function for the object created based on estimate effect function
+#model is the name of the stm model
+
+png('content_can_mig1.png')
+plot(prep1, covariate = "speechdate", model =interaction,
+method = "continuous", xlab = "Date", moderator = "speakerparty", ci.level = 0.95, moderator.value = "R", linecol = "red", ylim = c(-.05, .25),  main = "Border Topic 1",  printlegend = F)
+plot(prep1, covariate = "speechdate", model = interaction,
+method = "continuous", xlab = "Date", moderator = "speakerparty",
+moderator.value = "D", linecol = "blue", add = T, printlegend = F)
+#legend(0, .25, c("Republicans", "Democrats"), lwd = 2, col = c("red", "blue"))
+
+
+#Based on a time snapshot, checks which topics are more associated with which topic
+
+#US topic association across parties 
+prepall <- estimateEffect(c(1:20) ~ speakerparty * s(speechdate), interactionm,
+metadata = outm$meta, uncertainty = "None")
+
+#visualizes the differences between cons and lib parties for selected topics. here topics 7 and 8 which were then named accordingly
+png('topics_migrcore.png')
+Topics <-plot(prep1325, covariate = "speakerparty", topics = c(2, 5, 6, 8, 10, 16, 17, 19, 20), model = interaction, method = "difference", cov.value1 = "D", cov.value2 = "R", ci.level = 0.95, xlab = "More Republican         More Democrat", main = "Migration, Security and Conflict", xlim = c(-.15, .15),labeltype = "custom", custom.labels = c('Economy','Terrorism', 'Serving Community', 'Refugee', 'Oil','International Conflict and obligations', 'Core Migration', 'Border', 'Security'))
+dev.off()
