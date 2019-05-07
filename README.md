@@ -1,5 +1,7 @@
 # Replication Materials
 
+Relevant data files are available at: https://uchicago.box.com/s/sdbpddyjky7s29mhnqra2fayx8dak5ko
+
 ## Cleaning
 
 Data cleaning was done as follows:
