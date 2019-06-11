@@ -29,6 +29,14 @@ interaction_content_spec_us = interaction_content_spec
 rm(outm)
 rm(interaction_content_spec)
 
+```{r}
+png(paste(c(plot_dir, "trafficking_plot_can", i, ".png"), collapse = "_"), res = 75)
+plot(interaction_content_spec_can, type = "perspectives", covarlevels = c(1,2), topics = 15, plabels = c("cons.", "lib."), text.cex = 0.9, n= 10, main = "Human Trafficking (15)", bty = 'n')
+
+dev.off()
+```
+
+
 Canada Content plots
 ```{r}
 
@@ -43,9 +51,18 @@ plot_labels_CAN = c('Immigration Types (5)', 'Asylum Process (10)', 'Law Enforce
 
 for (i in c(5, 10, 8, 14, 17, 18, 1, 7, 12, 13, 16, 20, 6, 9, 11, 2, 15)){
   png(paste(c(plot_dir, "070519_CAN_content_plot", i, ".png"), collapse = "_"))
-  plot(interaction_content_spec_can, type = "perspectives", covarlevels = c(1,2), topics = i, plabels = c(" cons.", "lib."), text.cex = 0.9, n= 10, main = plot_labels_CAN[i], bty = 'n')
+  plot(interaction_content_spec_can, type = "perspectives", covarlevels = c(1,2), topics = i, plabels = c("conservative", "liberal"), text.cex = 0.9, n= 10, main = plot_labels_CAN[i], bty = 'n')
   dev.off()
 }
+```
+
+
+
+```{r}
+png(paste(c(plot_dir, "trafficking_plot_us", i, ".png"), collapse = "_"), res = 75)
+plot(interaction_content_spec_us, type = "perspectives", covarlevels = c(3,1), topics = 7, plabels = c(" Repub.", "Democ."), text.cex = 0.9, n= 10, main = "Human Trafficking (7)", bty = 'n')
+
+dev.off()
 ```
 
 US Content plots - done 
@@ -192,7 +209,7 @@ par(mfrow=c(2,2))
 
 
 plot(prep5, covariate = "speechdate", model =interaction_content_spec_can,
-method = "continuous", xlab = "Date", moderator = "speakerparty", ci.level = 0.95, moderator.value = "conservative", linecol = "black", ylim = c(0.0, .3),  main = "Immigration Types (5)",  printlegend = F, xaxt = 'n')
+method = "continuous", xlab = "Date", moderator = "speakerparty", ci.level = 0.95, moderator.value = "conservative", linecol = "black", ylim = c(.0, .3),  main = "Immigration Types (5)",  printlegend = F, xaxt = 'n')
 
 plot(prep5, covariate = "speechdate",  model =interaction_content_spec_can,
 method = "continuous", xlab = "Date", moderator = "speakerparty",
@@ -202,7 +219,7 @@ legend(19950000, 0, cex = 0.90, c("liberals", "conservatives"), lwd = 2, col=c("
 
 
 plot(prep10, covariate = "speechdate",  model =interaction_content_spec_can,
-method = "continuous", xlab = "Date", moderator = "speakerparty", ci.level = 0.95, moderator.value = "conservative", linecol = "black", ylim = c(0, .3),  main = "Asylum Process (10)",  printlegend = F, xaxt = 'n')
+method = "continuous", xlab = "Date", moderator = "speakerparty", ci.level = 0.95, moderator.value = "conservative", linecol = "black", ylim = c(.0, .3),  main = "Asylum Process (10)",  printlegend = F, xaxt = 'n')
 plot(prep10, covariate = "speechdate",  model =interaction_content_spec_can,
 method = "continuous", xlab = "Date", moderator = "speakerparty",
 moderator.value = "liberal", linecol = "snow4", add = T, printlegend = F,xaxt = 'n')
@@ -210,7 +227,7 @@ axis(side=1, at = pretty(prep10$data$speechdate, n = 4), labels=pretty(prep10$da
 legend(19950000, .0, cex = 0.90, c("liberals", "conservatives"), lwd = 2, col = c("snow4", "black"))
 
 plot(prep15, covariate = "speechdate",  model =interaction_content_spec_can,
-method = "continuous", xlab = "Date", moderator = "speakerparty", ci.level = 0.95, moderator.value = "conservative", linecol = "black", ylim = c(0, .3), main = "Human Trafficking (15)",  printlegend = F, xaxt = 'n')
+method = "continuous", xlab = "Date", moderator = "speakerparty", ci.level = 0.95, moderator.value = "conservative", linecol = "black", ylim = c(.0, .3), main = "Human Trafficking (15)",  printlegend = F, xaxt = 'n')
 plot(prep15, covariate = "speechdate", model =interaction_content_spec_can,
 method = "continuous", xlab = "Date", moderator = "speakerparty",
 moderator.value = "liberal", linecol = "snow4", add = T, printlegend = F,xaxt = 'n')
@@ -219,7 +236,7 @@ legend(19950000, .3, cex = 0.90, c("liberals", "conservatives"), lwd = 2, col = 
 
 
 plot(prep17, covariate = "speechdate", model =interaction_content_spec_can,
-method = "continuous", xlab = "Date", moderator = "speakerparty", ci.level = 0.95, moderator.value = "conservative", linecol = "black", ylim = c(0, .3),  main = "Security (17)",  printlegend = F, xaxt = 'n')
+method = "continuous", xlab = "Date", moderator = "speakerparty", ci.level = 0.95, moderator.value = "conservative", linecol = "black", ylim = c(.0, .3),  main = "Security (17)",  printlegend = F, xaxt = 'n')
 plot(prep17, covariate = "speechdate",  model =interaction_content_spec_can,
 method = "continuous", xlab = "Date", moderator = "speakerparty",
 moderator.value = "liberal", linecol = "snow4", add = T, printlegend = F,xaxt = 'n')
@@ -234,40 +251,40 @@ dev.off()
 Over time - US plots
 
 ```{r}
-interactionm = interaction_content_spec
+#interactionm = interaction_content_spec
 #prep files for over time prevalence plots United States
-prep1 <- estimateEffect(c(1) ~ speakerparty * s(speechdate), interactionm,
-metadata = outm$meta, uncertainty = "None")
+prep1 <- estimateEffect(c(1) ~ speakerparty * s(speechdate), interaction_content_spec_us,
+metadata = out_us$meta, uncertainty = "None")
 
-prep2 <- estimateEffect(c(2) ~ speakerparty * s(speechdate), interactionm,
-metadata = outm$meta, uncertainty = "None")
+prep2 <- estimateEffect(c(2) ~ speakerparty * s(speechdate), interaction_content_spec_us,
+metadata = out_us$meta, uncertainty = "None")
 
-prep5 <- estimateEffect(c(5) ~ speakerparty * s(speechdate), interactionm,
-metadata = outm$meta, uncertainty = "None")
+prep5 <- estimateEffect(c(5) ~ speakerparty * s(speechdate), interaction_content_spec_us,
+metadata = out_us$meta, uncertainty = "None")
 
-prep6 <- estimateEffect(c(6) ~ speakerparty * s(speechdate), interactionm,
-metadata = outm$meta, uncertainty = "None")
+prep6 <- estimateEffect(c(6) ~ speakerparty * s(speechdate), interaction_content_spec_us,
+metadata = out_us$meta, uncertainty = "None")
 
-prep7 <- estimateEffect(c(7) ~ speakerparty * s(speechdate), interactionm,
-metadata = outm$meta, uncertainty = "None")
+prep7 <- estimateEffect(c(7) ~ speakerparty * s(speechdate), interaction_content_spec_us,
+metadata = out_us$meta, uncertainty = "None")
 
-prep8 <- estimateEffect(c(8) ~ speakerparty * s(speechdate), interactionm,
-metadata = outm$meta, uncertainty = "None")
+prep8 <- estimateEffect(c(8) ~ speakerparty * s(speechdate), interaction_content_spec_us,
+metadata = out_us$meta, uncertainty = "None")
 
-prep10 <- estimateEffect(c(10) ~ speakerparty * s(speechdate), interactionm,
-metadata = outm$meta, uncertainty = "None")
+prep10 <- estimateEffect(c(10) ~ speakerparty * s(speechdate), interaction_content_spec_us,
+metadata = out_us$meta, uncertainty = "None")
 
-prep16 <- estimateEffect(c(16) ~ speakerparty * s(speechdate), interactionm,
-metadata = outm$meta, uncertainty = "None")
+prep16 <- estimateEffect(c(16) ~ speakerparty * s(speechdate), interaction_content_spec_us,
+metadata = out_us$meta, uncertainty = "None")
 
-prep17 <- estimateEffect(c(17) ~ speakerparty * s(speechdate), interactionm,
-metadata = outm$meta, uncertainty = "None")
+prep17 <- estimateEffect(c(17) ~ speakerparty * s(speechdate), interaction_content_spec_us,
+metadata = out_us$meta, uncertainty = "None")
 
-prep19 <- estimateEffect(c(19) ~ speakerparty * s(speechdate), interactionm,
-metadata = outm$meta, uncertainty = "None")
+prep19 <- estimateEffect(c(19) ~ speakerparty * s(speechdate), interaction_content_spec_us,
+metadata = out_us$meta, uncertainty = "None")
 
-prep20 <- estimateEffect(c(20) ~ speakerparty * s(speechdate), interactionm,
-metadata = outm$meta, uncertainty = "None")
+prep20 <- estimateEffect(c(20) ~ speakerparty * s(speechdate),interaction_content_spec_us,
+metadata = out_us$meta, uncertainty = "None")
 ```
 
 ```{r}
@@ -337,4 +354,66 @@ plot(interaction_content_spec_can,  custom.labels = c('Budget', 'Humanitarianism
 
 dev.off()
 ```
+
+
+
+```{r}
+library(ggplot2)
+library(tidyr)
+library(dplyr)
+topicClassUSA <-rbind("Migration Core","Migration Core", "Irrelevant", "Irrelevant", "Culture", "Irrelevant",
+                "Human Rights", "Human Rights", "Irrelevant", "Security", "Irrelevant", "Economy", "Economy",
+                "Irrelevant", "Culture", "Security", "Security", "Economy", "Human Rights", "Irrelevant")
+USA <- rbind("United States", "United States", "United States", "United States", "United States", "United States", 
+             "United States", "United States", "United States", "United States", "United States", "United States", 
+             "United States", "United States", "United States", "United States", "United States", "United States", 
+             "United States", "United States")
+topicClassUSA <- as.data.frame(cbind(topicClassUSA, USA))
+colnames(topicClassUSA)[1] <- "Category"
+colnames(topicClassUSA)[2] <- "Country"
+
+topicClassCAN <- rbind("Economy", "Migration Core", "Irrelevant", "Irrelevant", "Migration Core",
+                       "Culture", "Economy", "Security", "Culture", "Migration Core", "Culture", "Economy", 
+                       "Economy", "Security","Human Rights", "Economy", "Security", "Security", "Irrelevant", "Economy")
+CAN <- rbind("Canada", "Canada", "Canada", "Canada", "Canada", "Canada", "Canada", "Canada", "Canada", "Canada", 
+             "Canada", "Canada", "Canada", "Canada", "Canada", "Canada", "Canada", "Canada", "Canada", "Canada")
+topicClassCAN <- as.data.frame(cbind(topicClassCAN, CAN))
+colnames(topicClassCAN)[1] <- "Category"
+colnames(topicClassCAN)[2] <- "Country"
+dat <- rbind(topicClassUSA, topicClassCAN)
+#write.csv(dat, "data.BIGSSS.csv")
+#here, i took it into excel to add the counts, I know there's a tidyr way to do it but alas, here we are.
+#dat<- read.csv("data.fortopiccategorization.BIGSSS.csv")
+# ref https://stackoverflow.com/questions/2479689/crosstab-with-multiple-items
+dat_sum = data.frame(xtabs(~Country+Category, data = dat))
+#dat_sum$Country = factor(dat_sum$Country, levels = rev(levels(dat_sum$Country)))
+
+dat_sum$Category = factor(dat_sum$Category, levels = rev(c("Security", "Migration Core", "Human Rights", "Economy", "Culture", "Irrelevant")))
+
+png(paste(c(plot_dir, 'topic_classifications.png'), collapse = ""))
+
+Both_Plot = ggplot(data=dat_sum, aes(Category, Freq)) +
+  geom_bar(aes(fill=Country), position = position_dodge(width = 1), stat="identity") +
+  scale_fill_grey(start = 0.25, end = 0.75) +
+  xlab("Categorization of Topic") + 
+  coord_flip() +
+  ylab("Count" ) +
+  ggtitle("Topic Classification")
+
+theme_set(theme_bw())
+theme_update(text = element_text(size=12),
+             panel.grid.major = element_blank(),
+             panel.grid.minor = element_blank(),
+             strip.background = element_blank()
+)
+
+
+# reverse legend order
+Both_Plot +  guides(fill =  guide_legend(reverse = TRUE))
+dev.off()
+#Both_Plot
+```
+ To convert all images to grayscale use imagemajick
+ 
+for i in $(ls); do convert $i -fx '(r+g+b)/3' -colorspace Gray 'gray_'$i ; done
 
