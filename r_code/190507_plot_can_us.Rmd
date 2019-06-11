@@ -32,7 +32,7 @@ plot_labels_CAN = c('Immigration Types (5)', 'Asylum Process (10)', 'Law Enforce
 
 for (i in c(5, 10, 8, 14, 17, 18, 1, 7, 12, 13, 16, 20, 6, 9, 11, 2, 15)){
   png(paste(c(plot_dir, "070519_CAN_content_plot", i, ".png"), collapse = "_"))
-  plot(interaction_content_spec, type = "perspectives", covarlevels = c(1,2), topics = i, plabels = c(" cons.", "lib."), text.cex = 0.9, n= 10, main = plot_labels_CAN[i])
+  plot(interaction_content_spec_can, type = "perspectives", covarlevels = c(1,2), topics = i, plabels = c(" cons.", "lib."), text.cex = 0.9, n= 10, main = plot_labels_CAN[i], bty = 'n')
   dev.off()
 }
 ```
@@ -320,3 +320,27 @@ legend(19950000, .3, c("Democrats", "Republicans"), lwd = 2, col = c("snow4", "b
 
 dev.off()
 ```
+
+
+
+```{r}
+png(paste(c(plot_dir, 'expected_proportion_combined.png'), collapse = ""), res = 50)
+par(mfrow=c(1,2))
+
+plot(interaction_content_spec_us,  custom.labels = c("Immigration Types", "Law Enforcement", "Procedural 1", "Wildlife Refuge", "Voting",
+                "Multicultural America", "Human trafficking", "Foreign Aid",
+                "Procedural 2", "Security", "Procedural 3","Budget 12", "Oil Production", 
+                "Procedural 4",
+                "Education", "International conflicts", "Threats",
+                "Welfare", "Humanitarianism", "Procedural 5"), type = "summary", main = "Top Topics - US Corpus", xlim = c(0, .3), bty = 'n')
+
+
+plot(interaction_content_spec_can,  custom.labels = c('Budget', 'Humanitarianism', 'First Nations', 'Procedural 1', 'Immigration Types',
+                    'Citizenship','Welfare', 'Law Enforcement', 'Provincial Concerns','Asylum Process',
+                    'History of Immigration', 'Family Support', 'Investment in Jobs', 'Privacy or Security',
+                    'Human Trafficking','Economic Sectors','Security',
+                    'International Conflicts', 'Procedural 2','International Trade'), type = "summary", main = "Top Topics - Canada Corpus", xlim = c(0, .3), bty = 'n')
+
+dev.off()
+```
+
