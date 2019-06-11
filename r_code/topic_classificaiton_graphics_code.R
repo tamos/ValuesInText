@@ -37,7 +37,7 @@ Both_Plot = ggplot(data=dat_sum, aes(Category, Freq)) +
   ggtitle("Topic Classification")
 
 
-
+# reverse legend order
 Both_Plot +  guides(fill =  guide_legend(reverse = TRUE))
 
 Both_Plot
