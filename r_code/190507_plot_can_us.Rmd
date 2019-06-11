@@ -6,13 +6,20 @@ output: html_document
 library(stm)
 library(dplyr)
 plot_dir = "~/Documents/BIGSSS/plots/"
+opar = par()
 ```
 
  Make sure to load each trained model object and its corpus when you're generating the plots.
+ 
+For example:
+
+load("model_input_data/190507_can_out.RData.RData")
+load("final_models/190131_interaction_model_spectral_content_can_justlibcon2.RData")
+load("model_input_data/190507_us_out.RData.RData")
+load("final_models/190127_interaction_model_spectral_content_us.RData")
 
 Canada Content plots
 ```{r}
-
 
 plot_labels_CAN = c('Immigration Types (5)', 'Asylum Process (10)', 'Law Enforcement (8)',
                     'Privacy or Security (14)','Security (17)', 'International Conflicts (18)',
@@ -59,13 +66,13 @@ prep_all <- estimateEffect(c(1:20) ~ speakerparty * s(speechdate), interaction_c
 
 png(paste(c(plot_dir, 'CAN_topics_migrcore_coeff.png'), collapse = ""))
 
-Topicsm <-plot(prep_all, covariate = "speakerparty", topics = c(5, 10, 8, 14, 17, 18, 1, 7, 12, 13, 16, 20, 6, 9, 11, 2, 15), model = interaction_content_spec, method = "difference", cov.value1 = "liberal", cov.value2 = "conservative", ci.level = 0.95, xlab = "More conservative         More liberal", main = "Migration Topics in the Canadian Parlaiment",
+Topicsm <-plot(prep_all, covariate = "speakerparty", topics = c(5, 10, 8, 14, 17, 18, 1, 7, 12, 13, 16, 20, 6, 9, 11, 2, 15), model = interaction_content_spec, method = "difference", cov.value1 = "liberal", cov.value2 = "conservative", ci.level = 0.95, xlab = "More conservative         More liberal", main = "Migration Topics in the Canadian Parliament",
                xlim = c(-.2, .2),labeltype = "custom",
                custom.labels = c('Immigration Types (5)', 'Asylum Process (10)',
                                  'Law Enforcement (8)', 'Privacy or Security (14)','Security
                                  (17)',
                                  'International Conflicts (18)', 'Budget (1)',  'Welfare (7)',
-                                 'Family Support (12)', 'Investment in Jobs (13)', 'Economic
+                                 'Family Support (12)', 'Investment \nin Jobs (13)', 'Economic
                                  Sectors (16)',
                                  'International Trade (20)', 'Citizenship (6)', 'Provincial
                                  Concerns (9)',
@@ -74,13 +81,73 @@ Topicsm <-plot(prep_all, covariate = "speakerparty", topics = c(5, 10, 8, 14, 17
 
 dev.off()
 ```
+```{r}
+# some renaming and data loading 
+load("final_models/190127_interaction_model_spectral_content_us.RData")
+interaction_content_spec_us = interaction_content_spec
+rm(interaction_content_spec)
+load("final_models/190131_interaction_model_spectral_content_can_justlibcon2.RData")
+interaction_content_spec_can = interaction_content_spec
+rm(interaction_content_spec)
+
+load("model_input_data/190507_us_out.RData.RData")
+out_us = outm
+rm(outm)
+
+load("model_input_data/190507_can_out.RData.RData")
+out_can = out 
+rm(out)
+```
+
+```{r, fig.width=14, fig.height=12} 
+
+png(paste(c(plot_dir, 'coeff_combined.png'), collapse = ""), res = 50)
+par(mfrow=c(1,2))
+ #US coeffplot
+
+prep_all <- estimateEffect(c(1:20) ~ speakerparty * s(speechdate), interaction_content_spec_us,
+metadata = out_us$meta, uncertainty = "None")
+             
+Topics <-plot(prep_all, covariate = "speakerparty", topics = c(1, 2, 10, 16, 17, 12, 13, 18, 5, 6, 15, 7, 8, 19),
+model = interaction_content_spec_us, method = "difference", cov.value1 = "D", cov.value2 = "R", ci.level = 0.95, xlab = "More Republican         More Democrat", main = "Migration Topics in the US Congress", xlim = c(-.2, .2), labeltype = "custom",
+custom.labels = c('Immigration Types (1)', 'Law Enforcement (2)',
+                  'Security (10)', 'International Conflicts (16)',
+                  'Threats (17)','Budget (12)', 'Oil Production (13)',
+                  'Welfare (18)', 'Voting (5)', 'Multicultural America (6)',
+                  'Education (15)', 'Human Trafficking (7)', 'Foreign Aid (8)',
+                  'Humanitarianism (19)'), bty = 'n')
+
+
+#Canada coeffplot
+prep_all <- estimateEffect(c(1:20) ~ speakerparty * s(speechdate), interaction_content_spec_can, metadata = out_can$meta, uncertainty = "None")
+
+#visualizes the differences between cons and lib parties for selected topics
+
+Topicsm <-plot(prep_all, covariate = "speakerparty", topics = c(5, 10, 8, 14, 17, 18, 1, 7, 12, 13, 16, 20, 6, 9, 11, 2, 15), model = interaction_content_spec_can, method = "difference", cov.value1 = "liberal", cov.value2 = "conservative", ci.level = 0.95, xlab = "More conservative         More liberal", main = "Migration Topics in the Canadian Parliament",
+               xlim = c(-.2, .2),labeltype = "custom",
+               custom.labels = c('Immigration Types (5)', 'Asylum Process (10)',
+                                 'Law Enforcement (8)', 'Privacy or Security (14)','Security
+                                 (17)',
+                                 'International Conflicts (18)', 'Budget (1)',  'Welfare (7)',
+                                 'Family Support (12)', 'Investment \nin Jobs (13)', 'Economic
+                                 Sectors (16)',
+                                 'International Trade (20)', 'Citizenship (6)', 'Provincial
+                                 Concerns (9)',
+                                 'History of Immigration (11)', 'Humanitarianism (2)', 'Human
+                                 Trafficking (15)'), bty = 'n')
+dev.off()
+```
+
 
 ```{r}
+# combined us and canada coefficient plot 
+png(paste(c(plot_dir, 'coeff_combined.png'), collapse = ""))
+par(mfrow=c(2,1))
+
  #US coeffplot
 prep_all <- estimateEffect(c(1:20) ~ speakerparty * s(speechdate), interaction_content_spec,
-metadata = out$meta, uncertainty = "None")
+metadata = out_us$meta, uncertainty = "None")
              
-  png(paste(c(plot_dir, "070519_US_coeff", i, ".png"), collapse = "_"))
 Topics <-plot(prep_all, covariate = "speakerparty", topics = c(1, 2, 10, 16, 17, 12, 13, 18, 5, 6, 15, 7, 8, 19),
 model = interaction_content_spec, method = "difference", cov.value1 = "D", cov.value2 = "R", ci.level = 0.95, xlab = "More Republican         More Democrat", main = "Migration Topics in the US Congress", xlim = c(-.2, .2), labeltype = "custom",
 custom.labels = c('Immigration Types (1)', 'Law Enforcement (2)',
@@ -89,6 +156,8 @@ custom.labels = c('Immigration Types (1)', 'Law Enforcement (2)',
                   'Welfare (18)', 'Voting (5)', 'Multicultural America (6)',
                   'Education (15)', 'Human Trafficking (7)', 'Foreign Aid (8)',
                   'Humanitarianism (19)'))
+
+
 dev.off()
 ```
 
@@ -171,6 +240,7 @@ dev.off()
 Over time - US plots
 
 ```{r}
+interactionm = interaction_content_spec
 #prep files for over time prevalence plots United States
 prep1 <- estimateEffect(c(1) ~ speakerparty * s(speechdate), interactionm,
 metadata = outm$meta, uncertainty = "None")
