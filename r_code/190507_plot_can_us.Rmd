@@ -15,8 +15,19 @@ For example:
 
 load("model_input_data/190507_can_out.RData.RData")
 load("final_models/190131_interaction_model_spectral_content_can_justlibcon2.RData")
+
+interaction_content_spec_can = interaction_content_spec
+rm(interaction_content_spec)
+out_can = out
+rm(out)
+
 load("model_input_data/190507_us_out.RData.RData")
 load("final_models/190127_interaction_model_spectral_content_us.RData")
+
+out_us = outm
+interaction_content_spec_us = interaction_content_spec
+rm(outm)
+rm(interaction_content_spec)
 
 Canada Content plots
 ```{r}
@@ -51,7 +62,7 @@ plot_labels = c("Immigration Types (1)", "Law Enforcement (2)", "Security (10)",
 
 for (i in c(1,2,10,16,17, 12, 13, 18,5, 6, 15, 7, 8, 19)){
   png(paste(c(plot_dir, "070519_US_content_plot", i, ".png"), collapse = "_"))
-  plot(interaction_content_spec, type = "perspectives", covarlevels = c(3,1), plabels = c("Republicans", "Democrats"), topics = i,   text.cex = 1, n= 10, main = plot_labels[i])
+  plot(interaction_content_spec_us, type = "perspectives", covarlevels = c(3,1), plabels = c("Republicans", "Democrats"), topics = i,   text.cex = 1, n= 10, main = plot_labels[i])
   dev.off()
 }
 ```
@@ -59,14 +70,14 @@ for (i in c(1,2,10,16,17, 12, 13, 18,5, 6, 15, 7, 8, 19)){
 
 ```{r}
 #Canada coeffplot
-prep_all <- estimateEffect(c(1:20) ~ speakerparty * s(speechdate), interaction_content_spec, metadata = out$meta, uncertainty = "None")
+prep_all <- estimateEffect(c(1:20) ~ speakerparty * s(speechdate), interaction_content_spec_can, metadata = out_can$meta, uncertainty = "None")
 
 #visualizes the differences between cons and lib parties for selected topics
 
 
 png(paste(c(plot_dir, 'CAN_topics_migrcore_coeff.png'), collapse = ""))
 
-Topicsm <-plot(prep_all, covariate = "speakerparty", topics = c(5, 10, 8, 14, 17, 18, 1, 7, 12, 13, 16, 20, 6, 9, 11, 2, 15), model = interaction_content_spec, method = "difference", cov.value1 = "liberal", cov.value2 = "conservative", ci.level = 0.95, xlab = "More conservative         More liberal", main = "Migration Topics in the Canadian Parliament",
+Topicsm <-plot(prep_all, covariate = "speakerparty", topics = c(5, 10, 8, 14, 17, 18, 1, 7, 12, 13, 16, 20, 6, 9, 11, 2, 15), model = interaction_content_spec_can, method = "difference", cov.value1 = "liberal", cov.value2 = "conservative", ci.level = 0.95, xlab = "More conservative         More liberal", main = "Migration Topics in the Canadian Parliament",
                xlim = c(-.2, .2),labeltype = "custom",
                custom.labels = c('Immigration Types (5)', 'Asylum Process (10)',
                                  'Law Enforcement (8)', 'Privacy or Security (14)','Security
@@ -140,25 +151,7 @@ dev.off()
 
 
 ```{r}
-# combined us and canada coefficient plot 
-png(paste(c(plot_dir, 'coeff_combined.png'), collapse = ""))
-par(mfrow=c(2,1))
 
- #US coeffplot
-prep_all <- estimateEffect(c(1:20) ~ speakerparty * s(speechdate), interaction_content_spec,
-metadata = out_us$meta, uncertainty = "None")
-             
-Topics <-plot(prep_all, covariate = "speakerparty", topics = c(1, 2, 10, 16, 17, 12, 13, 18, 5, 6, 15, 7, 8, 19),
-model = interaction_content_spec, method = "difference", cov.value1 = "D", cov.value2 = "R", ci.level = 0.95, xlab = "More Republican         More Democrat", main = "Migration Topics in the US Congress", xlim = c(-.2, .2), labeltype = "custom",
-custom.labels = c('Immigration Types (1)', 'Law Enforcement (2)',
-                  'Security (10)', 'International Conflicts (16)',
-                  'Threats (17)','Budget (12)', 'Oil Production (13)',
-                  'Welfare (18)', 'Voting (5)', 'Multicultural America (6)',
-                  'Education (15)', 'Human Trafficking (7)', 'Foreign Aid (8)',
-                  'Humanitarianism (19)'))
-
-
-dev.off()
 ```
 
 
@@ -172,22 +165,22 @@ Over time - cANADA plots
 
 
 
-prep5 <- estimateEffect(c(5) ~ speakerparty * s(speechdate), interaction_content_spec,
-metadata = out$meta, uncertainty = "None")
+prep5 <- estimateEffect(c(5) ~ speakerparty * s(speechdate), interaction_content_spec_can,
+metadata = out_can$meta, uncertainty = "None")
 
-prep7 <- estimateEffect(c(7) ~ speakerparty * s(speechdate), interaction_content_spec,
-metadata = out$meta, uncertainty = "None")
+prep7 <- estimateEffect(c(7) ~ speakerparty * s(speechdate), interaction_content_spec_can,
+metadata = out_can$meta, uncertainty = "None")
 
-prep10 <- estimateEffect(c(10) ~ speakerparty * s(speechdate), interaction_content_spec,
-metadata = out$meta, uncertainty = "None")
-
-
-prep15<- estimateEffect(c(15) ~ speakerparty * s(speechdate), interaction_content_spec,
-metadata = out$meta, uncertainty = "None")
+prep10 <- estimateEffect(c(10) ~ speakerparty * s(speechdate), interaction_content_spec_can,
+metadata = out_can$meta, uncertainty = "None")
 
 
-prep17 <- estimateEffect(c(17) ~ speakerparty * s(speechdate), interaction_content_spec,
-metadata = out$meta, uncertainty = "None")
+prep15<- estimateEffect(c(15) ~ speakerparty * s(speechdate), interaction_content_spec_can,
+metadata = out_can$meta, uncertainty = "None")
+
+
+prep17 <- estimateEffect(c(17) ~ speakerparty * s(speechdate), interaction_content_spec_can,
+metadata = out_can$meta, uncertainty = "None")
 
 ```
 
@@ -198,35 +191,36 @@ png(paste(c(plot_dir, 'CAN_4overtime.png'), collapse = ""))
 par(mfrow=c(2,2))
 
 
-plot(prep5, covariate = "speechdate", model =interaction,
-method = "continuous", xlab = "Date", moderator = "speakerparty", ci.level = 0.95, moderator.value = "conservative", linecol = "black", ylim = c(-.1, .3),  main = "Immigration Types (5)",  printlegend = F, xaxt = 'n')
-plot(prep5, covariate = "speechdate", model = interaction,
+plot(prep5, covariate = "speechdate", model =interaction_content_spec_can,
+method = "continuous", xlab = "Date", moderator = "speakerparty", ci.level = 0.95, moderator.value = "conservative", linecol = "black", ylim = c(0.0, .3),  main = "Immigration Types (5)",  printlegend = F, xaxt = 'n')
+
+plot(prep5, covariate = "speechdate",  model =interaction_content_spec_can,
 method = "continuous", xlab = "Date", moderator = "speakerparty",
 moderator.value = "liberal", linecol = "snow4", add = T, printlegend = F,xaxt = 'n')
 axis(side=1, at = pretty(prep5$data$speechdate, n = 4), labels=pretty(prep5$data$speechdate)/ 10000)
 legend(19950000, 0, cex = 0.90, c("liberals", "conservatives"), lwd = 2, col=c("snow4","black"))
 
 
-plot(prep10, covariate = "speechdate", model =interaction,
-method = "continuous", xlab = "Date", moderator = "speakerparty", ci.level = 0.95, moderator.value = "conservative", linecol = "black", ylim = c(-.1, .3),  main = "Asylum Process (10)",  printlegend = F, xaxt = 'n')
-plot(prep10, covariate = "speechdate", model = interaction,
+plot(prep10, covariate = "speechdate",  model =interaction_content_spec_can,
+method = "continuous", xlab = "Date", moderator = "speakerparty", ci.level = 0.95, moderator.value = "conservative", linecol = "black", ylim = c(0, .3),  main = "Asylum Process (10)",  printlegend = F, xaxt = 'n')
+plot(prep10, covariate = "speechdate",  model =interaction_content_spec_can,
 method = "continuous", xlab = "Date", moderator = "speakerparty",
 moderator.value = "liberal", linecol = "snow4", add = T, printlegend = F,xaxt = 'n')
 axis(side=1, at = pretty(prep10$data$speechdate, n = 4), labels=pretty(prep10$data$speechdate)/ 10000)
 legend(19950000, .0, cex = 0.90, c("liberals", "conservatives"), lwd = 2, col = c("snow4", "black"))
 
-plot(prep15, covariate = "speechdate", model =interaction,
-method = "continuous", xlab = "Date", moderator = "speakerparty", ci.level = 0.95, moderator.value = "conservative", linecol = "black", ylim = c(-.1, .3), main = "Human Trafficking (15)",  printlegend = F, xaxt = 'n')
-plot(prep15, covariate = "speechdate", model = interaction,
+plot(prep15, covariate = "speechdate",  model =interaction_content_spec_can,
+method = "continuous", xlab = "Date", moderator = "speakerparty", ci.level = 0.95, moderator.value = "conservative", linecol = "black", ylim = c(0, .3), main = "Human Trafficking (15)",  printlegend = F, xaxt = 'n')
+plot(prep15, covariate = "speechdate", model =interaction_content_spec_can,
 method = "continuous", xlab = "Date", moderator = "speakerparty",
 moderator.value = "liberal", linecol = "snow4", add = T, printlegend = F,xaxt = 'n')
 axis(side=1, at = pretty(prep15$data$speechdate, n = 4), labels=pretty(prep15$data$speechdate)/ 10000)
 legend(19950000, .3, cex = 0.90, c("liberals", "conservatives"), lwd = 2, col = c("snow4", "black"))
 
 
-plot(prep17, covariate = "speechdate", model =interaction,
-method = "continuous", xlab = "Date", moderator = "speakerparty", ci.level = 0.95, moderator.value = "conservative", linecol = "black", ylim = c(-.1, .3),  main = "Security (17)",  printlegend = F, xaxt = 'n')
-plot(prep17, covariate = "speechdate", model = interaction,
+plot(prep17, covariate = "speechdate", model =interaction_content_spec_can,
+method = "continuous", xlab = "Date", moderator = "speakerparty", ci.level = 0.95, moderator.value = "conservative", linecol = "black", ylim = c(0, .3),  main = "Security (17)",  printlegend = F, xaxt = 'n')
+plot(prep17, covariate = "speechdate",  model =interaction_content_spec_can,
 method = "continuous", xlab = "Date", moderator = "speakerparty",
 moderator.value = "liberal", linecol = "snow4", add = T, printlegend = F,xaxt = 'n')
 axis(side=1, at = pretty(prep17$data$speechdate, n = 4), labels=pretty(prep17$data$speechdate)/ 10000)
